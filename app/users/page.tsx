@@ -39,6 +39,16 @@ const UserRow = memo(({ user }: { user: any }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const router = useRouter();
   const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageLoad = useCallback(() => {
+    setImageLoading(false);
+  }, []);
+
+  const handleImageError = useCallback(() => {
+    setImageLoading(false);
+    setImageError(true);
+  }, []);
 
   return (
     <TableRow
@@ -54,17 +64,27 @@ const UserRow = memo(({ user }: { user: any }) => {
     >
       <TableCell>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {imageLoading && (
+          {imageLoading ? (
             <Skeleton variant="circular" width={40} height={40} sx={{ bgcolor: 'rgba(255, 255, 255, 0.1)' }} />
+          ) : (
+            <Avatar 
+              src={imageError ? undefined : user.image} 
+              alt={`${user.firstName} ${user.lastName}`}
+              imgProps={{ 
+                loading: 'lazy',
+                onLoad: handleImageLoad,
+                onError: handleImageError,
+              }}
+            />
           )}
-          <Avatar 
-            src={user.image} 
-            alt={`${user.firstName} ${user.lastName}`}
-            imgProps={{ 
-              loading: 'lazy',
-              onLoad: () => setImageLoading(false),
-            }}
-            sx={{ display: imageLoading ? 'none' : 'flex' }}
+          {/* Hidden image to trigger loading */}
+          <img
+            src={user.image}
+            alt=""
+            loading="lazy"
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+            style={{ display: 'none' }}
           />
           <Box>
             <Typography variant="body1" sx={{ color: 'white', fontWeight: 600 }}>

@@ -83,6 +83,10 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
+  // Ensure proper URL configuration for production
+  ...(process.env.NEXTAUTH_URL && { 
+    url: process.env.NEXTAUTH_URL 
+  }),
 };
 
 const handler = NextAuth(authOptions);

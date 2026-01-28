@@ -41,6 +41,19 @@ const UserRow = memo(({ user }: { user: any }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
+  // Check if image is already cached on mount
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setImageLoaded(true);
+    img.onerror = () => setImageError(true);
+    img.src = user.image;
+    
+    // If image is already cached, it will be complete immediately
+    if (img.complete) {
+      setImageLoaded(true);
+    }
+  }, [user.image]);
+
   return (
     <TableRow
       hover
@@ -81,14 +94,6 @@ const UserRow = memo(({ user }: { user: any }) => {
             >
               {user.firstName[0]}{user.lastName[0]}
             </Avatar>
-            <img
-              src={user.image}
-              alt=""
-              loading="lazy"
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageError(true)}
-              style={{ display: 'none' }}
-            />
           </Box>
           <Box>
             <Typography variant="body1" sx={{ color: 'white', fontWeight: 600 }}>

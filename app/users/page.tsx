@@ -38,17 +38,8 @@ const UserRow = memo(({ user }: { user: any }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const router = useRouter();
-  const [imageLoading, setImageLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-
-  const handleImageLoad = useCallback(() => {
-    setImageLoading(false);
-  }, []);
-
-  const handleImageError = useCallback(() => {
-    setImageLoading(false);
-    setImageError(true);
-  }, []);
 
   return (
     <TableRow
@@ -64,28 +55,41 @@ const UserRow = memo(({ user }: { user: any }) => {
     >
       <TableCell>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {imageLoading ? (
-            <Skeleton variant="circular" width={40} height={40} sx={{ bgcolor: 'rgba(255, 255, 255, 0.1)' }} />
-          ) : (
+          <Box sx={{ position: 'relative', width: 40, height: 40 }}>
+            {!imageLoaded && !imageError && (
+              <Skeleton 
+                variant="circular" 
+                width={40} 
+                height={40} 
+                sx={{ 
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                }} 
+              />
+            )}
             <Avatar 
-              src={imageError ? undefined : user.image} 
+              src={user.image} 
               alt={`${user.firstName} ${user.lastName}`}
-              imgProps={{ 
-                loading: 'lazy',
-                onLoad: handleImageLoad,
-                onError: handleImageError,
+              sx={{ 
+                width: 40, 
+                height: 40,
+                opacity: imageLoaded || imageError ? 1 : 0,
+                transition: 'opacity 0.3s ease-in-out',
               }}
+            >
+              {user.firstName[0]}{user.lastName[0]}
+            </Avatar>
+            <img
+              src={user.image}
+              alt=""
+              loading="lazy"
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+              style={{ display: 'none' }}
             />
-          )}
-          {/* Hidden image to trigger loading */}
-          <img
-            src={user.image}
-            alt=""
-            loading="lazy"
-            onLoad={handleImageLoad}
-            onError={handleImageError}
-            style={{ display: 'none' }}
-          />
+          </Box>
           <Box>
             <Typography variant="body1" sx={{ color: 'white', fontWeight: 600 }}>
               {user.firstName} {user.lastName}

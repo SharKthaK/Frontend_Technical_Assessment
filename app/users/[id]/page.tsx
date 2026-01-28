@@ -38,7 +38,8 @@ export default function UserDetailPage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [imageLoading, setImageLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     // Scroll to top when page loads
@@ -169,19 +170,42 @@ export default function UserDetailPage() {
           boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
-            {imageLoading && (
-              <Skeleton variant="circular" width={120} height={120} sx={{ bgcolor: 'rgba(255, 255, 255, 0.1)' }} />
-            )}
-            <Avatar
-              src={user.image}
-              alt={`${user.firstName} ${user.lastName}`}
-              sx={{ width: 120, height: 120, display: imageLoading ? 'none' : 'flex' }}
-              imgProps={{ 
-                loading: 'lazy',
-                onLoad: () => setImageLoading(false),
-                onError: () => setImageLoading(false),
-              }}
-            />
+            <Box sx={{ position: 'relative', width: 120, height: 120 }}>
+              {!imageLoaded && !imageError && (
+                <Skeleton 
+                  variant="circular" 
+                  width={120} 
+                  height={120} 
+                  sx={{ 
+                    bgcolor: 'rgba(255, 255, 255, 0.1)',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                  }} 
+                />
+              )}
+              <Avatar
+                src={user.image}
+                alt={`${user.firstName} ${user.lastName}`}
+                sx={{ 
+                  width: 120, 
+                  height: 120,
+                  opacity: imageLoaded || imageError ? 1 : 0,
+                  transition: 'opacity 0.3s ease-in-out',
+                  fontSize: '2.5rem',
+                }}
+              >
+                {user.firstName[0]}{user.lastName[0]}
+              </Avatar>
+              <img
+                src={user.image}
+                alt=""
+                loading="lazy"
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageError(true)}
+                style={{ display: 'none' }}
+              />
+            </Box>
             <Box>
               <Typography variant="h4" gutterBottom sx={{ color: 'white', fontWeight: 700 }}>
                 {user.firstName} {user.lastName}
